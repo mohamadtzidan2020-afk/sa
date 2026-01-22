@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LipRead AI - Live Lip-Reading Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --light-color: #f8fafc;
+            --dark-color: #1e293b;
+            --text-color: #334155;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            color: var(--primary-color);
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .cta-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cta-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .cta-button.danger {
+            background-color: var(--danger-color);
+        }
+        
+        .cta-button.danger:hover {
+            background-color: #dc2626;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark-color);
+            cursor: pointer;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+        }
+        
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .hero-text h1 {
+            font-size: 3rem;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero-text p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+        
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .hero-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Demo Section - UPDATED FOR REAL CAMERA */
+        .demo-section {
+            padding: 80px 0;
+            background-color: #f0f9ff;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--dark-color);
+            margin-bottom: 50px;
+        }
+        
+        .demo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .camera-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .camera-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .camera-box {
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .camera-feed {
+            width: 100%;
+            height: 300px;
+            background-color: #1e293b;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #cameraVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror effect for natural feel */
+        }
+        
+        .camera-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            text-align: center;
+        }
+        
+        .camera-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .camera-status {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+        
+        .text-output-box {
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .text-output {
+            width: 100%;
+            min-height: 200px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #cbd5e1;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .output-placeholder {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        
+        .demo-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        /* Lip Movement Visualization */
+        .visualization {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .visualization h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .lip-canvas-container {
+            display: flex;
+            justify-content: center;
+        }
+        
+        #lipCanvas {
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+        
+        /* How It Works Section */
+        .how-it-works {
+            padding: 80px 0;
+            background-color: white;
+        }
+        
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .step {
+            background-color: #f8fafc;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+        
+        .step:hover {
+            transform: translateY(-5px);
+        }
+        
+        .step-icon {
+            background-color: #dbeafe;
+            color: var(--primary-color);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .step h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links h3, .footer-contact h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #334155;
+            color: #94a3b8;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .demo-controls button {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+        
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <i class="fas fa-lips logo-icon"></i>
+                    <span>LipRead AI</span>
+                </a>
+                
+                <ul class="nav-links">
+                    <li><a href="#demo">Live Demo</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#accessibility">Accessibility</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+                
+                <button class="cta-button" id="demoBtn">
+                    <i class="fas fa-play"></i> Try Live Demo
+                </button>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        Camera access granted! Start speaking to see lip-reading in action.
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>AI Lip-Reading Assistant 👄</h1>
+                    <p>Real-time visual speech recognition that converts lip movements into text. Making conversations accessible for the deaf and hard-of-hearing community.</p>
+                    <button class="cta-button" id="heroDemoBtn">
+                        <i class="fas fa-video"></i> Launch Camera Demo
+                    </button>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="AI Lip Reading Technology">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Demo Section -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <h2 class="section-title">Live Lip-Reading Demo</h2>
+            <div class="demo-container">
+                <div class="camera-container">
+                    <div class="camera-box">
+                        <div class="camera-feed">
+                            <video id="cameraVideo" autoplay playsinline></video>
+                            <div class="camera-placeholder" id="cameraPlaceholder">
+                                <i class="fas fa-video camera-icon"></i>
+                                <p>Camera feed will appear here</p>
+                                <p>Click "Start Camera" to begin</p>
+                            </div>
+                        </div>
+                        <div class="camera-status" id="cameraStatus">
+                            Camera is off. Click "Start Camera" to begin.
+                        </div>
+                    </div>
+                    
+                    <div class="text-output-box">
+                        <div class="text-output" id="textOutput">
+                            <div class="output-placeholder">
+                                Lip-read text will appear here in real-time...
+                            </div>
+                        </div>
+                        <div class="text-stats">
+                            <div><strong>Words Detected:</strong> <span id="wordCount">0</span></div>
+                            <div><strong>Confidence:</strong> <span id="confidenceLevel">--%</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="demo-controls">
+                    <button class="cta-button" id="startCameraBtn">
+                        <i class="fas fa-video"></i> Start Camera
+                    </button>
+                    <button class="cta-button danger" id="stopCameraBtn" disabled>
+                        <i class="fas fa-stop"></i> Stop Camera
+                    </button>
+                    <button class="cta-button" id="clearTextBtn">
+                        <i class="fas fa-eraser"></i> Clear Text
+                    </button>
+                    <button class="cta-button" id="samplePhraseBtn" style="background-color: var(--success-color);">
+                        <i class="fas fa-magic"></i> Try Sample Phrases
+                    </button>
+                </div>
+                
+                <!-- Lip Movement Visualization -->
+                <div class="visualization">
+                    <h3>Lip Movement Detection</h3>
+                    <div class="lip-canvas-container">
+                        <canvas id="lipCanvas" width="400" height="200"></canvas>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: #64748b;">
+                        This visualization shows detected mouth shape and movement intensity
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How LipRead AI Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3>1. Camera Capture</h3>
+                    <p>Uses your device's camera to capture real-time video of lip and facial movements at 30+ fps for accurate tracking.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>2. AI Processing</h3>
+                    <p>Neural networks analyze mouth shapes, tongue positions, and facial muscle movements to interpret phonemes and words.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <h3>3. Real-time Text Output</h3>
+                    <p>Converts visual speech patterns into accurate text with contextual understanding, displayed in real-time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <div class="footer-logo">
+                        <i class="fas fa-lips"></i> LipRead AI
+                    </div>
+                    <p>Making visual speech accessible through AI technology. Bridging communication gaps for the deaf and hard-of-hearing.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#demo">Live Demo</a></li>
+                        <li><a href="#how-it-works">Technology</a></li>
+                        <li><a href="#accessibility">Accessibility</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-envelope"></i> contact@lipreadai.com</p>
+                    <p><i class="fas fa-phone"></i> Accessibility Support: +1 (555) 123-4567</p>
+                    <p><i class="fas fa-map-marker-alt"></i> San Francisco, CA</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 LipRead AI. All rights reserved. | This is a demonstration of lip-reading technology.</p>
+                <p style="font-size: 0.9rem; margin-top: 10px;">Note: This demo simulates lip-reading functionality. In a production environment, this would integrate with actual ML models.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const cameraVideo = document.getElementById('cameraVideo');
+        const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+        const cameraStatus = document.getElementById('cameraStatus');
+        const textOutput = document.getElementById('textOutput');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const stopCameraBtn = document.getElementById('stopCameraBtn');
+        const clearTextBtn = document.getElementById('clearTextBtn');
+        const samplePhraseBtn = document.getElementById('samplePhraseBtn');
+        const heroDemoBtn = document.getElementById('heroDemoBtn');
+        const demoBtn = document.getElementById('demoBtn');
+        const wordCount = document.getElementById('wordCount');
+        const confidenceLevel = document.getElementById('confidenceLevel');
+        const lipCanvas = document.getElementById('lipCanvas');
+        const notification = document.getElementById('notification');
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        
+        // Variables
+        let stream = null;
+        let isCameraOn = false;
+        let animationId = null;
+        let ctx = lipCanvas.getContext('2d');
+        let mouthOpenness = 0;
+        let mouthWidth = 0.5;
+        
+        // Sample phrases for demo
+        const samplePhrases = [
+            "Hello, how are you doing today?",
+            "I would like a glass of water please.",
+            "Accessibility technology changes lives.",
+            "Can you please repeat that?",
+            "Thank you for using LipRead AI.",
+            "Visual speech recognition is amazing.",
+            "The weather is beautiful today.",
+            "Please speak clearly facing the camera.",
+            "This technology helps bridge communication gaps.",
+            "Artificial intelligence for social good."
+        ];
+        
+        // Phrases that simulate lip-reading detection
+        const detectionPhrases = [
+            "Hello",
+            "How are you",
+            "Thank you",
+            "Please",
+            "Water",
+            "Help",
+            "Yes",
+            "No",
+            "Good morning",
+            "Goodbye"
+        ];
+        
+        // Show notification
+        function showNotification(message, isError = false) {
+            notification.textContent = message;
+            notification.className = 'notification';
+            if (isError) {
+                notification.classList.add('error');
+            }
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Start camera function
+        async function startCamera() {
+            try {
+                // Request camera access
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+                
+                // Display camera stream
+                cameraVideo.srcObject = stream;
+                cameraPlaceholder.style.display = 'none';
+                cameraVideo.style.display = 'block';
+                
+                // Update UI
+                isCameraOn = true;
+                startCameraBtn.disabled = true;
+                stopCameraBtn.disabled = false;
+                cameraStatus.textContent = 'Camera is active. Try speaking clearly facing the camera.';
+                cameraStatus.style.color = '#10b981';
+                
+                // Show success notification
+                showNotification('Camera access granted! Start speaking to see lip-reading in action.');
+                
+                // Start lip movement visualization
+                startLipVisualization();
+                
+                // Simulate lip reading detection
+                simulateLipReading();
+                
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                cameraStatus.textContent = 'Error accessing camera. Please check permissions.';
+                cameraStatus.style.color = '#ef4444';
+                showNotification('Could not access camera. Please ensure you have granted camera permissions.', true);
+                
+                // Fallback: Use placeholder image
+                cameraPlaceholder.innerHTML = `
+                    <i class="fas fa-exclamation-triangle camera-icon" style="color:#ef4444;"></i>
+                    <p>Camera access denied or unavailable</p>
+                    <p>Using simulated mode instead</p>
+                `;
+                cameraPlaceholder.style.display = 'flex';
+                
+                // Simulate lip reading anyway
+                simulateLipReading();
+            }
+        }
+        
+        // Stop camera function
+        function stopCamera() {
+            if (stream) {
+                // Stop all tracks
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            // Update UI
+            isCameraOn = false;
+            cameraVideo.srcObject = null;
+            cameraVideo.style.display = 'none';
+            cameraPlaceholder.style.display = 'flex';
+            cameraPlaceholder.innerHTML = `
+                <i class="fas fa-video camera-icon"></i>
+                <p>Camera feed will appear here</p>
+                <p>Click "Start Camera" to begin</p>
+            `;
+            startCameraBtn.disabled = false;
+            stopCameraBtn.disabled = true;
+            cameraStatus.textContent = 'Camera is off. Click "Start Camera" to begin.';
+            cameraStatus.style.color = '#64748b';
+            
+            // Stop animation
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, lipCanvas.width, lipCanvas.height);
+        }
+        
+        // Clear text output
+        function clearText() {
+            textOutput.innerHTML = '<div class="output-placeholder">Lip-read text will appear here in real-time...</div>';
+            wordCount.textContent = '0';
+            confidenceLevel.textContent = '--%';
+        }
+        
+        // Add text to output
+        function addTextToOutput(text, confidence = 85) {
+            // Remove placeholder if present
+            if (textOutput.querySelector('.output-placeholder')) {
+                textOutput.innerHTML = '';
+            }
+            
+            // Create new text element
+            const textElement = document.createElement('div');
+            textElement.className = 'output-text';
+            textElement.innerHTML = `<strong>[${getCurrentTime()}]</strong> "${text}"`;
+            textElement.style.marginBottom = '10px';
+            textElement.style.padding = '5px 0';
+            textElement.style.borderBottom = '1px solid #e2e8f0';
+            
+            // Add to output
+            textOutput.prepend(textElement);
+            
+            // Update stats
+            const words = text.split(' ').length;
+            const currentCount = parseInt(wordCount.textContent) || 0;
+            wordCount.textContent = currentCount + words;
+            confidenceLevel.textContent = `${confidence}%`;
+            
+            // Auto-scroll to top
+            textOutput.scrollTop = 0;
+        }
+        
+        // Get current time for timestamps
+        function getCurrentTime() {
+            const now = new Date();
+            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        }
+        
+        // Simulate lip reading detection
+        function simulateLipReading() {
+            if (!isCameraOn) return;
+            
+            // Randomly add detected phrases
+            const randomInterval = Math.random() * 5000 + 3000; // 3-8 seconds
+            setTimeout(() => {
+                if (isCameraOn) {
+                    const randomPhrase = detectionPhrases[Math.floor(Math.random() * detectionPhrases.length)];
+                    const confidence = Math.floor(Math.random() * 20) + 75; // 75-95%
+                    addTextToOutput(randomPhrase, confidence);
+                    
+                    // Continue simulation
+                    simulateLipReading();
+                }
+            }, randomInterval);
+        }
+        
+        // Start lip movement visualization
+        function startLipVisualization() {
+            // Clear canvas
+            ctx.clearRect(0, 0, lipCanvas.width, lipCanvas.height);
+            
+            // Animation function
+            function animate() {
+                // Clear canvas
+                ctx.clearRect(0, 0, lipCanvas.width, lipCanvas.height);
+                
+                // Draw mouth visualization
+                drawMouth();
+                
+                // Continue animation
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            // Start animation
+            animate();
+        }
+        
+        // Draw mouth visualization
+        function drawMouth() {
+            const centerX = lipCanvas.width / 2;
+            const centerY = lipCanvas.height / 2;
+            
+            // Simulate mouth movement
+            mouthOpenness = 0.3 + 0.3 * Math.sin(Date.now() / 500);
+            mouthWidth = 0.4 + 0.2 * Math.sin(Date.now() / 700);
+            
+            // Draw mouth outline
+            ctx.beginPath();
+            ctx.ellipse(
+                centerX, 
+                centerY, 
+                80 * mouthWidth, 
+                40 * (1 + mouthOpenness), 
+                0, 0, Math.PI * 2
+            );
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw mouth interior (open/closed)
+            ctx.beginPath();
+            ctx.ellipse(
+                centerX, 
+                centerY + 5, 
+                70 * mouthWidth, 
+                30 * mouthOpenness, 
+                0, 0, Math.PI * 2
+            );
+            ctx.fillStyle = mouthOpenness > 0.5 ? '#ef4444' : '#f87171';
+            ctx.fill();
+            
+            // Draw label
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Simulated Lip Movement', centerX, 30);
+            
+            // Draw status
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#64748b';
+            const status = mouthOpenness > 0.5 ? 'Speaking detected' : 'Pause in speech';
+            ctx.fillText(`Status: ${status}`, centerX, lipCanvas.height - 15);
+        }
+        
+        // Try sample phrases
+        function trySamplePhrases() {
+            if (!isCameraOn) {
+                showNotification('Please start the camera first to use sample phrases.', true);
+                return;
+            }
+            
+            // Clear existing text
+            clearText();
+            
+            // Add 3 random sample phrases
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const phrase = samplePhrases[Math.floor(Math.random() * samplePhrases.length)];
+                    const confidence = Math.floor(Math.random() * 15) + 80; // 80-95%
+                    addTextToOutput(phrase, confidence);
+                }, i * 1500);
+            }
+            
+            showNotification('Sample phrases added. These simulate what lip-reading would detect.');
+        }
+        
+        // Event Listeners
+        startCameraBtn.addEventListener('click', startCamera);
+        stopCameraBtn.addEventListener('click', stopCamera);
+        clearTextBtn.addEventListener('click', clearText);
+        samplePhraseBtn.addEventListener('click', trySamplePhrases);
+        heroDemoBtn.addEventListener('click', () => {
+            document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                if (!isCameraOn) {
+                    startCamera();
+                }
+            }, 500);
+        });
+        demoBtn.addEventListener('click', () => {
+            document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    navLinks.classList.remove('active');
+                }
+            });
+        });
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            // Check if browser supports mediaDevices
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                cameraStatus.textContent = 'Your browser does not support camera access.';
+                cameraStatus.style.color = '#ef4444';
+                startCameraBtn.disabled = true;
+                startCameraBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Browser Not Supported';
+                
+                showNotification('Your browser does not support camera access. Using simulation mode only.', true);
+            }
+        });
+        
+        // Auto-stop camera when leaving page
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>
